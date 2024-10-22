@@ -1,89 +1,97 @@
-﻿namespace Final;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-class Program
+﻿using System;
+
+class HumanPlayer
 {
-       // hardcode employee's username and password for login authencation
-    static Dictionary<string, string> dict_login = new Dictionary<string, string>();
-            //create a dictionary of available room categories
-    static Dictionary<string, double> dict_aRooms = new Dictionary<string, double>();
-    //create a dictionary of reserved rooms
-    static Dictionary<string, double> dict_rRooms = new Dictionary<string, double>();
-    //create a dictionary of food sides
-    static Dictionary<string, double> dict_sides = new Dictionary<string, double>();
-    static void Main(string[] args)
+    private int points; // the points that the human player has
+
+    public HumanPlayer(int initial)
     {
-        //Login
-        dict_login.Add("Alice","123");
-        Rooms();
-
-        Console.WriteLine("CIDM2315 Final Project: Eric Starks");
-        Console.WriteLine("Welcome to Buff Hotel");
-
-        //if login is successful show these
-        bool login_result = employee_login(dict_login);
-        if(login_result){
-            Console.WriteLine("*******************");
-            Console.WriteLine("Please select: ");
-            Console.WriteLine("1. Show Avaible Rooms");
-            Console.WriteLine("2. Check-In");
-            Console.WriteLine("3. Show Reserved Rooms");
-            Console.WriteLine("4. Check-Out");
-            Console.WriteLine("5. Log-Out");
-            Console.WriteLine("*******************");
-
-            // Choose where you want to go 
-            string choice = Console.ReadLine();
-            if(choice == "1"){
-                ShowR(dict_aRooms);
-            }
-            
-        }
-
+        points = initial;
     }
-        
-    
-    public static bool employee_login(Dictionary<string, string> dict_login){
-        // input username and password
-        Console.WriteLine("Please input username");
-        string username = Console.ReadLine();
-        
-        Console.WriteLine("Please input password");
-        string password = Console.ReadLine();
 
-        if(dict_login.ContainsKey(username)){
-            if (dict_login[username] == password){
-                Console.WriteLine("Login Successfully.\n");
-                Console.WriteLine($"** Hello Cashier: {username} **");
+    public int GetPoints()
+    {
+        return points;
+    }
 
-                return true;
-            }else{
-                Console.WriteLine("Wrong Password");
-                return false;
-            }
-        }
-        else{
-                Console.WriteLine("User does not exit.");
-                return false;
+    public void WinRound()
+    {
+        points += 5;
+    }
+
+    public void LoseRound()
+    {
+        points -= 5;
+    }
+
+    public string HumanDecision()
+    {
+        Console.WriteLine("Select your shape (Rock, Paper, Scissors): ");
+        string decision = Console.ReadLine();
+        return decision;
+    }
+}
+
+class ComputerPlayer
+{
+    public string ComputerDecision()
+    {
+        Random random = new Random();
+        int decision = random.Next(1, 4);
+        switch (decision)
+        {
+            case 1:
+                return "Rock";
+            case 2:
+                return "Paper";
+            case 3:
+                return "Scissors";
+            default:
+                return "Rock";
         }
     }
-//creating-showing rooms
-    public static void Rooms(){
-
-        dict_aRooms.Add("Room number: 101; Capacity:", 2);
-        dict_aRooms.Add("Room number: 102; Capacity:", 2);
-        dict_aRooms.Add("Room number: 103; Capacity:", 2);
-        dict_aRooms.Add("Room number: 104; Capacity:", 2);
-        dict_aRooms.Add("Room number: 105; Capacity:", 2);
-        dict_aRooms.Add("Room number: 106; Capacity:", 2);
 }
 
-   public static void ShowR(Dictionary<string, double> dict_aRooms){
-        int R = 0;
-        foreach(var Rooms in dict_aRooms){
-            Console.WriteLine($"{Rooms.Key}\t {Rooms.Value}");
-            R++;
+class RockPaperScissors
+{
+    public static void Main(string[] args)
+    {
+        HumanPlayer humanPlayer = new HumanPlayer(5); // Initial points for human player
+        ComputerPlayer computerPlayer = new ComputerPlayer();
+        while (true)
+        {
+            Console.WriteLine($"Human Player Points: {humanPlayer.GetPoints()}");
+            string humanDecision = humanPlayer.HumanDecision();
+            string computerDecision = computerPlayer.ComputerDecision();
+            Console.WriteLine($"Computer's decision: {computerDecision}");
+            if (humanDecision == computerDecision)
+            {
+                Console.WriteLine("It's a tie!");
+            }
+            else if ((humanDecision == "Rock" && computerDecision == "Scissors") ||
+                     (humanDecision == "Paper" && computerDecision == "Rock") ||
+                     (humanDecision == "Scissors" && computerDecision == "Paper"))
+            {
+                Console.WriteLine("Human Player wins!");
+                humanPlayer.WinRound();
+            }
+            else
+            {
+                Console.WriteLine("Computer wins!");
+                humanPlayer.LoseRound();
+            }
+
+            if (humanPlayer.GetPoints() <= 0)
+            {
+                Console.WriteLine("Game over. Human player has no points left.");
+                break;
+            }
+
+            Console.WriteLine("Do you want to play another round? (yes/no)");
+            string playAgain = Console.ReadLine();
+            if (playAgain.ToLower() != "yes")
+                break;
         }
+    }
 }
-}
+
